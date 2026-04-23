@@ -1,0 +1,26 @@
+{
+  "name": "product-list",
+  "version": "1.0.0",
+  "description": "This project has been created by a student at Parsity, an online software engineering course. The work in this repository is wholly of the student based on a sample starter project that can be accessed by looking at the repository that this project forks.",
+  "homepage": "https://github.com/XTruckDriver/product-list#readme",
+  "bugs": {
+    "url": "https://github.com/XTruckDriver/product-list/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XTruckDriver/product-list.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "faker": "^5.5.3",
+    "mongoose": "^9.5.0"
+  }
+}
