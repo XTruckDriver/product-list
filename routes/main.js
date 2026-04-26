@@ -44,5 +44,25 @@ router.get("/products", (req, res, next) => {
 
 });
 
+router.get("/products/:product", (req, res, next) => {
+  const id = req.params.product
+
+  Product.findById(id)
+    .exec()
+    .then(product => {
+      if (!product) {
+        console.log("No results found");
+        return;
+      };
+      console.log("Results for this page: ");
+      console.log(product);
+      res.status(200).send(product);
+    })
+    .catch(err => {
+      console.error(err);
+      next(err);
+    });
+});
+
 
 module.exports = router;
