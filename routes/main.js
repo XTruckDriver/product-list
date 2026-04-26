@@ -20,23 +20,29 @@ router.get("/generate-fake-data", (req, res, next) => {
 });
 
 
-router.get("/products", async (req, res, next) => {
+router.get("/products", (req, res, next) => {
   const perPage = 9;
   const page = req.query.page || 1;
 
-  try {
-    const products = await Product.find({})
-      .skip(perPage * page - perPage)
-      .limit(perPage)
-      .exec();
+  Product.find({ })
+    .skip(perPage * page - perPage)
+    .limit(perPage)
+    .exec()
+    .then(results => {
+      if (!results || results.length === 0) {
+        console.log("No results found");
+        return res.status(200).send([]);
+      };
+      console.log("Results for this page: ");
+      console.log(results);
+      res.status(200).send(results);
+    })
+    .catch(err => {
+      console.error(err);
+      next(err);
+    });
 
-    const count = await Product.countDocuments().exec();
-
-    // only sending products now, but count is available
-    res.send(products);
-  } catch (err) {
-    next(err);
-  }
 });
+
 
 module.exports = router;
