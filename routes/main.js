@@ -17,7 +17,7 @@ router.get("/generate-fake-data", (req, res, next) => {
         });
   }
   res.end();
-});
+}); 
 
 
 router.get("/products", (req, res, next) => {
@@ -42,6 +42,24 @@ router.get("/products", (req, res, next) => {
       next(err);
     });
 
+});
+
+router.post("/products", async (req, res, next) => {
+  try {
+    const { name, price } = req.body;
+    const newProduct = await Product.create({ name, price });
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct,
+    });
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to create product",
+      error: err.message,
+    });
+  }
+  
 });
 
 router.get("/products/:product", (req, res, next) => {
