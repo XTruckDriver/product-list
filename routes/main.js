@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const faker = require("faker");
 const Product = require("../models/product");
+const Review = require("../models/review");
 
 
 router.get("/generate-fake-data", (req, res, next) => {
@@ -44,25 +45,6 @@ router.get("/products", async (req, res, next) => {
 });
 
 
-router.post("/products", async (req, res, next) => {
-  try {
-    const { name, price } = req.body;
-    const newProduct = await Product.create({ name, price });
-
-    res.status(201).json({
-      message: "Product created successfully",
-      product: newProduct,
-    });
-  } catch (err) {
-    res.status(400).json({
-      message: "Failed to create product",
-      error: err.message,
-    });
-  }
-  
-});
-
-
 router.get("/products/:product", async (req, res, next) => {
   try {
     const id = req.params.product
@@ -83,8 +65,25 @@ router.get("/products/:product", async (req, res, next) => {
       message: "Failed to retrieve product",
       error: err.message,
     });
-  } 
+  }
+});
 
+
+router.post("/products", async (req, res, next) => {
+  try {
+    const { name, price } = req.body;
+    const newProduct = await Product.create({ name, price });
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct,
+    });
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to create product",
+      error: err.message,
+    });
+  }
   
 });
 
