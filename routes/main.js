@@ -62,24 +62,29 @@ router.post("/products", async (req, res, next) => {
   
 });
 
-router.get("/products/:product", (req, res, next) => {
-  const id = req.params.product
+router.get("/products/:product", async (req, res, next) => {
+  try {
+    const id = req.params.product
+    const product = await Product.findById(id);
 
-  Product.findById(id)
-    .exec()
-    .then(product => {
-      if (!product) {
-        console.log("No results found");
-        return;
-      };
-      console.log("Results for this page: ");
-      console.log(product);
-      res.status(200).send(product);
-    })
-    .catch(err => {
-      console.error(err);
-      next(err);
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      }); 
+    }
+
+    res.status(200).json({
+      message: "Product retrieved",
+      product,
+     });
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to retrieve product",
+      error: err.message,
     });
+  } 
+
+  
 });
 
 
