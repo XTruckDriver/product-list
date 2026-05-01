@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const mongoose = require("mongoose");
 const faker = require("faker");
 const Product = require("../models/product");
 const Review = require("../models/review");
@@ -31,6 +32,7 @@ router.get("/products", async (req, res, next) => {
       .skip(perPage * page - perPage)
       .limit(perPage);
 
+      
     res.status(200).json({
       message: "Products retrieved",
       products,
@@ -56,10 +58,12 @@ router.get("/products/:product", async (req, res, next) => {
       }); 
     }
 
+
     res.status(200).json({
       message: "Product retrieved",
       product,
      });
+
   } catch (err) {
     res.status(400).json({
       message: "Failed to retrieve product",
@@ -74,10 +78,12 @@ router.post("/products", async (req, res, next) => {
     const { name, price } = req.body;
     const newProduct = await Product.create({ name, price });
 
+
     res.status(201).json({
       message: "Product created successfully",
       product: newProduct,
     });
+
   } catch (err) {
     res.status(400).json({
       message: "Failed to create product",
@@ -86,6 +92,44 @@ router.post("/products", async (req, res, next) => {
   }
   
 });
+
+
+router.post("/products/:product/reviews", async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    const { userName } = req.body || "anonymous";
+    const productId = req.params.product;
+    
+    console.log(`text: ${text}`);
+    console.log(`username: ${userName}`);
+    console.log(`product: ${productId}`);
+
+    const product = await Product.findOne({ _id: productId });
+
+    const review = new Review({
+      _id: new mongoose.Types.ObjectId(), 
+      userName: userName, 
+      text: text, 
+      product: product._id 
+    });
+    await review.save();
+    await product.reviews.push(review);
+    await product.save();
+
+
+    res.status(201).json({
+      message: "Review created",
+      review: review,
+    });
+
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to create review",
+      error: err.message,
+    });
+  }
+});
+
 
 
 module.exports = router;
