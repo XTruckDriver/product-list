@@ -32,7 +32,7 @@ router.get("/products", async (req, res, next) => {
       .skip(perPage * page - perPage)
       .limit(perPage);
 
-      
+
     res.status(200).json({
       message: "Products retrieved",
       products,
@@ -67,6 +67,33 @@ router.get("/products/:product", async (req, res, next) => {
   } catch (err) {
     res.status(400).json({
       message: "Failed to retrieve product",
+      error: err.message,
+    });
+  }
+});
+
+
+router.get("/products/:product/reviews", async (req, res, next) => {
+  try {
+    const productId = req.params.product;
+    const product = await Product.findById(productId).populate('reviews');
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      }); 
+    };
+
+    const productReviews = product.reviews;
+
+    res.status(200).json({
+       message: "Reviews retrieved",
+       productReviews,
+    });
+
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to retrieve reviews",
       error: err.message,
     });
   }
