@@ -157,6 +157,33 @@ router.post("/products/:product/reviews", async (req, res, next) => {
   }
 });
 
+router.delete("/products/:product", async (req, res, next) => {
+  try {
+    const productId = req.params.product;
+    
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+    if (!deletedProduct) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    // Do I want to delete the product's reviews? Currently, does not remove them. Not sure if needed in future?
+    
+
+    return res.status(200).json({
+      message: "Product deleted",
+      deletedProduct: deletedProduct.name,
+    });
+
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to delete product",
+      error: err.message,
+    }); 
+  }
+});
+
 
 
 module.exports = router;
