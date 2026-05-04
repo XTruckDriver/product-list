@@ -76,15 +76,19 @@ router.get("/products/:product", async (req, res, next) => {
 router.get("/products/:product/reviews", async (req, res, next) => {
   try {
     const productId = req.params.product;
-    const product = await Product.findById(productId).populate('reviews');
+    const perPage = 4;
+    const page = parseInt(req.query.page, 10) || 1;
 
-    if (!product) {
+    const productReviews = await Review.find({product: productId})
+      .skip(perPage * page - perPage)
+      .limit(perPage);
+    
+    if (!productReviews) {
       return res.status(404).json({
-        message: "Product not found",
-      }); 
+        message: "Product reviews not found",
+      });
     };
 
-    const productReviews = product.reviews;
 
     res.status(200).json({
        message: "Reviews retrieved",
@@ -126,10 +130,6 @@ router.post("/products/:product/reviews", async (req, res, next) => {
     const { text } = req.body;
     const { userName } = req.body || "anonymous";
     const productId = req.params.product;
-    
-    console.log(`text: ${text}`);
-    console.log(`username: ${userName}`);
-    console.log(`product: ${productId}`);
 
     const product = await Product.findOne({ _id: productId });
 
