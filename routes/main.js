@@ -3,6 +3,29 @@ const mongoose = require("mongoose");
 const faker = require("faker");
 const Product = require("../models/product");
 const Review = require("../models/review");
+const product = require("../models/product");
+
+
+router.param('product', async (req, res, next, productId) => {
+  try {
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    } else {
+      req.product = product;
+      console.log('in middleware - product found');
+      next();
+    };
+
+
+  } catch (err) {
+      res.status(400).json({
+        message: "Failed to retrieve product",
+        error: err.message,
+      });
+    }
+});
 
 
 router.get("/generate-fake-data", (req, res, next) => {
@@ -48,28 +71,15 @@ router.get("/products", async (req, res, next) => {
 
 
 router.get("/products/:product", async (req, res, next) => {
-  try {
-    const id = req.params.product
-    const product = await Product.findById(id);
 
-    if (!product) {
-      return res.status(404).json({
-        message: "Product not found",
-      }); 
-    }
+  console.log('after middleware, product: ');
+  console.log(req.product.name);
+  res.status(200).json({
+    message: "product retrieved",
+    product: req.product,
+  });
 
 
-    res.status(200).json({
-      message: "Product retrieved",
-      product,
-     });
-
-  } catch (err) {
-    res.status(400).json({
-      message: "Failed to retrieve product",
-      error: err.message,
-    });
-  }
 });
 
 
