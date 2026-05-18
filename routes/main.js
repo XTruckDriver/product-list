@@ -137,20 +137,20 @@ router.post("/products", async (req, res, next) => {
 });
 
 
+
 router.post("/products/:product/reviews", async (req, res, next) => {
   try {
-    const { text } = req.body;
-    const { userName } = req.body || "anonymous";
+    const { text, userName } = req.body;
     const productId = req.params.product;
-
-    const product = await Product.findOne({ _id: productId });
+    const product = req.product;
 
     const review = new Review({
       _id: new mongoose.Types.ObjectId(), 
       userName: userName, 
       text: text, 
-      product: product._id 
+      product: product._id, 
     });
+
     await review.save();
     await product.reviews.push(review);
     await product.save();
@@ -168,6 +168,8 @@ router.post("/products/:product/reviews", async (req, res, next) => {
     });
   }
 });
+
+
 
 router.delete("/products/:product", async (req, res, next) => {
   try {
