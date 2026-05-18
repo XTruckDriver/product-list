@@ -89,20 +89,20 @@ router.get("/products/:product/reviews", async (req, res, next) => {
     const perPage = 4;
     const page = parseInt(req.query.page, 10) || 1;
 
-    const productReviews = await Review.find({product: productId})
+    const reviews = await Review.find({ product: productId })
       .skip(perPage * page - perPage)
       .limit(perPage);
-    
-    if (!productReviews) {
+
+    if (!reviews) {
       return res.status(404).json({
-        message: "Product reviews not found",
+        message: "Reviews not found",
       });
     };
 
 
     res.status(200).json({
-       message: "Reviews retrieved",
-       productReviews,
+      message: "Reviews retrieved",
+      reviews,
     });
 
   } catch (err) {
@@ -111,7 +111,9 @@ router.get("/products/:product/reviews", async (req, res, next) => {
       error: err.message,
     });
   }
+
 });
+
 
 
 router.post("/products", async (req, res, next) => {
