@@ -7,6 +7,10 @@ const product = require("../models/product");
 
 
 router.param('product', async (req, res, next, productId) => {
+  if (req.method === "DELETE") {
+    return next();
+  }
+
   try {
     const product = await Product.findById(productId);
 
