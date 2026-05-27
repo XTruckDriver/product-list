@@ -3,33 +3,7 @@ const mongoose = require("mongoose");
 const faker = require("faker");
 const Product = require("../models/product");
 const Review = require("../models/review");
-const product = require("../models/product");
 
-
-router.param('product', async (req, res, next, productId) => {
-  if (req.method === "DELETE") {
-    return next();
-  }
-
-  try {
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    } else {
-      req.product = product;
-      console.log('in middleware - product found');
-      next();
-    };
-
-
-  } catch (err) {
-      res.status(400).json({
-        message: "Failed to retrieve product",
-        error: err.message,
-      });
-    }
-});
 
 
 router.get("/generate-fake-data", (req, res, next) => {
@@ -50,20 +24,21 @@ router.get("/generate-fake-data", (req, res, next) => {
 }); 
 
 
+
 router.get("/products", async (req, res, next) => {
   try {
     const perPage = 9;
     const page = parseInt(req.query.page, 10) || 1;
 
-    const products = await Product.find({ })
-      .skip(perPage * page - perPage)
+    const products = await Product.find({})
+      .skip(perPage * (page - 1))
       .limit(perPage);
-
-
+  
     res.status(200).json({
       message: "Products retrieved",
       products,
     });
+
 
   } catch (err) {
     res.status(400).json({
@@ -74,62 +49,17 @@ router.get("/products", async (req, res, next) => {
 });
 
 
-router.get("/products/:product", async (req, res, next) => {
-
-  console.log('after middleware, product: ');
-  console.log(req.product.name);
-  res.status(200).json({
-    message: "product retrieved",
-    product: req.product,
-  });
-
-
-});
-
-
-router.get("/products/:product/reviews", async (req, res, next) => {
-  try {
-    const productId = req.params.product;
-    const perPage = 4;
-    const page = parseInt(req.query.page, 10) || 1;
-
-    const reviews = await Review.find({ product: productId })
-      .skip(perPage * page - perPage)
-      .limit(perPage);
-
-    if (!reviews) {
-      return res.status(404).json({
-        message: "Reviews not found",
-      });
-    };
-
-
-    res.status(200).json({
-      message: "Reviews retrieved",
-      reviews,
-    });
-
-  } catch (err) {
-    res.status(400).json({
-      message: "Failed to retrieve reviews",
-      error: err.message,
-    });
-  }
-
-});
-
-
 
 router.post("/products", async (req, res, next) => {
   try {
     const { name, price } = req.body;
     const newProduct = await Product.create({ name, price });
 
-
     res.status(201).json({
       message: "Product created successfully",
       product: newProduct,
     });
+
 
   } catch (err) {
     res.status(400).json({
@@ -137,40 +67,28 @@ router.post("/products", async (req, res, next) => {
       error: err.message,
     });
   }
-  
 });
 
 
 
-router.post("/products/:product/reviews", async (req, res, next) => {
-  try {
-    const { text, userName } = req.body;
-    const productId = req.params.product;
-    const product = req.product;
+router.get("/products/:product", async (req, res, next) => {
+try {
+  const productId = req.params.product;
 
-    const review = new Review({
-      _id: new mongoose.Types.ObjectId(), 
-      userName: userName, 
-      text: text, 
-      product: product._id, 
-    });
+  const product = await Product.findById(productId);
 
-    await review.save();
-    await product.reviews.push(review);
-    await product.save();
+  res.status(200).json({
+    message: "product retrieved",
+    product: product,
+  });
 
 
-    res.status(201).json({
-      message: "Review created",
-      review: review,
-    });
-
-  } catch (err) {
-    res.status(400).json({
-      message: "Failed to create review",
-      error: err.message,
-    });
-  }
+} catch (err) {
+  res.status(400).json({
+    message: "Failed to retrieve product",
+    error: err.message,
+  });
+}
 });
 
 
@@ -191,7 +109,7 @@ router.delete("/products/:product", async (req, res, next) => {
 
     return res.status(200).json({
       message: "Product deleted",
-      deletedProduct: deletedProduct.name,
+      deletedProduct: deletedProduct,
     });
 
   } catch (err) {
@@ -203,9 +121,74 @@ router.delete("/products/:product", async (req, res, next) => {
 });
 
 
+
+router.get("/products/:product/reviews", async (req, res, next) => {
+  try {
+    const productId = req.params.product;
+    const perPage = 4;
+    const page = parseInt(req.query.page, 10) || 1;
+
+    const reviews = await Review.find({ product: productId })
+      .skip(perPage * (page - 1))
+      .limit(perPage);
+
+    res.status(200).json({
+      message: "Reviews retrieved",
+      reviews,
+    });
+
+
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to retrieve reviews",
+      error: err.message,
+    });
+  }
+});
+
+
+
+router.post("/products/:product/reviews", async (req, res, next) => {
+  try {
+    const { text, userName } = req.body;
+    const productId = req.params.product;
+
+    const newReview = await Review.create({
+      userName: userName, 
+      text: text, 
+      product: productId, 
+    });
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    product.reviews.push(newReview._id);
+    await product.save();
+
+    res.status(201).json({
+      message: "Review created",
+      review: newReview,
+    });
+
+
+  } catch (err) {
+    res.status(400).json({
+      message: "Failed to create review",
+      error: err.message,
+    });
+  }
+});
+
+
+
 router.delete("/reviews/:review", async (req, res, next) => {
   try {
     const reviewId = req.params.review;
+
     const deletedReview = await Review.findByIdAndDelete(reviewId);
     
     if (!deletedReview) {
@@ -213,6 +196,11 @@ router.delete("/reviews/:review", async (req, res, next) => {
         message: "Review not found",
       });
     }
+
+    await Product.findByIdAndUpdate(
+      deletedReview.product,
+      { $pull: { reviews: reviewId } }
+    );
 
     return res.status(200).json({
       message: "Review deleted",
@@ -228,4 +216,6 @@ router.delete("/reviews/:review", async (req, res, next) => {
 });
 
 
+
 module.exports = router;
+
