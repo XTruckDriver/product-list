@@ -5,21 +5,32 @@ const Product = require("../models/product");
 const Review = require("../models/review");
 
 
-
-router.get("/generate-fake-data", (req, res, next) => {
+router.get("/generate-fake-data", async (req, res, next) => {
   for (let i = 0; i < 90; i++) {
-    let product = new Product();
+    const product = new Product();
 
     product.category = faker.commerce.department();
     product.name = faker.commerce.productName();
     product.price = faker.commerce.price();
     product.image = "https://via.placeholder.com/250?text=Product+Image";
 
-    product.save()
-        .catch(err => {
-            console.error(err);
-        });
+    for (let j = 0; j < 3; j++) {
+      const userName = faker.name.findName();
+      const text = faker.lorem.paragraphs(1);
+  
+      const review = await Review.create({
+        userName, 
+        text, 
+        product: product._id, 
+      });
+      
+
+      product.reviews.push(review._id);
+    };
+
+    await product.save();
   }
+
   res.end();
 }); 
 
