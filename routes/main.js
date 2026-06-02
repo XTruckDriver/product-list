@@ -15,7 +15,7 @@ router.get("/generate-fake-data", async (req, res, next) => {
     product.image = "https://via.placeholder.com/250?text=Product+Image";
 
     for (let j = 0; j < 3; j++) {
-      const userName = faker.name.findName();
+      const userName = faker.internet.userName();
       const text = faker.lorem.paragraphs(1);
   
       const review = await Review.create({
