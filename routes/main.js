@@ -43,7 +43,8 @@ router.get("/products", async (req, res, next) => {
 
     const products = await Product.find({})
       .skip(perPage * (page - 1))
-      .limit(perPage);
+      .limit(perPage)
+      .populate("reviews");
   
     res.status(200).json({
       message: "Products retrieved",
@@ -86,7 +87,7 @@ router.get("/products/:product", async (req, res, next) => {
 try {
   const productId = req.params.product;
 
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate("reviews");
 
   res.status(200).json({
     message: "product retrieved",
