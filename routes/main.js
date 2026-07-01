@@ -40,8 +40,14 @@ router.get("/products", async (req, res, next) => {
   try {
     const perPage = 9;
     const page = parseInt(req.query.page, 10) || 1;
+    const category = req.query.category;
 
-    const products = await Product.find({})
+    let queryOptions = {};
+
+    if (category) {queryOptions.category = category};
+    
+
+    const products = await Product.find(queryOptions)
       .skip(perPage * (page - 1))
       .limit(perPage)
       .populate("reviews");
