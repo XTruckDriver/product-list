@@ -46,7 +46,6 @@ router.get("/products", async (req, res, next) => {
 
     if (category) {queryOptions.category = category};
     
-
     const products = await Product.find(queryOptions)
       .skip(perPage * (page - 1))
       .limit(perPage)
