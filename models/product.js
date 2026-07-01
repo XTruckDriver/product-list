@@ -7,6 +7,11 @@ const ProductSchema = new Schema({
   price: { type: Number, required: true },
   image: String,
   reviews: [{type:Schema.Types.ObjectId, ref: "Review"}],
+}, {
+  collation: {
+    locale: 'en',
+    strength: 2
+  }
 });
 
 module.exports = mongoose.model("Product", ProductSchema);
