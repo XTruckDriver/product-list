@@ -41,12 +41,17 @@ router.get("/products", async (req, res, next) => {
     const perPage = 9;
     const page = parseInt(req.query.page, 10) || 1;
     const category = req.query.category;
+    const price = req.query.price;
 
     let queryOptions = {};
     let sortOrder = null;
 
     if (category) { queryOptions.category = category };
     
+    if (price) { 
+      sortOrder = req.query.price === 'highest' ? '-price' : 'price'; 
+    };
+
     const products = await Product.find(queryOptions)
       .sort(sortOrder)
       .skip(perPage * (page - 1))
