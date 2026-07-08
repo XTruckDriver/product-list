@@ -43,10 +43,12 @@ router.get("/products", async (req, res, next) => {
     const category = req.query.category;
 
     let queryOptions = {};
+    let sortOrder = null;
 
     if (category) { queryOptions.category = category };
     
     const products = await Product.find(queryOptions)
+      .sort(sortOrder)
       .skip(perPage * (page - 1))
       .limit(perPage)
       .populate("reviews");
